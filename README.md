@@ -1,48 +1,64 @@
-<p align="center">
-  <a href="https://www.gatsbyjs.com/?utm_source=starter&utm_medium=readme&utm_campaign=minimal-starter">
-    <img alt="Gatsby" src="https://www.gatsbyjs.com/Gatsby-Monogram.svg" width="60" />
-  </a>
-</p>
-<h1 align="center">
-  Gatsby minimal starter
-</h1>
+# gatsby-graphcms-ecommerce-starter
 
-## 🚀 Quick start
+> Minimalist dropshipping swag store built with GraphCMS, Stripe, Gatsby, Postmark and Printful.
 
-1.  **Create a Gatsby site.**
+[Read more](https://graphcms.com/blog/delivering-a-diy-store-powered-by-a-headless-cms-for-ecommerce/)
 
-    Use the Gatsby CLI to create a new site, specifying the minimal starter.
+## The stack
 
-    ```shell
-    # create a new Gatsby site using the minimal starter
-    npm init gatsby
-    ```
+Why settle for monolithic ecommerce platforms when you can make the most of the best APIs to build what you want. In this example we use a variety of services to perform your typical ecommerce tasks. #DIYCommerce
 
-2.  **Start developing.**
+- **[GraphCMS](https://graphcms.com)**: Localised product content, reviews, and order management.
+- **[Stripe](https://stripe.com)**: Used to securely process payments and Strong Customer Authentication.
+- **[Gatsby](https://gatsbyjs.org)**: Statically build product pages and handle cart/checkout logic.
+- **[Postmark](https://postmarkapp.com)**: Deliver order received and dispatched email notifications to customers.
+- **[Printful](https://printful.com)**: Create inventory and drop ship with ease.
 
-    Navigate into your new site’s directory and start it up.
+## How it works
 
-    ```shell
-    cd my-gatsby-site/
-    npm run develop
-    ```
+1. Gatsby will source products from Printful, and together with GraphCMS, Gatsby will enrich the product nodes. This means we can use Printful for inventory and GraphCMS for presentation data.
 
-3.  **Open the code and start customizing!**
+2. The "Add to Cart" function is handled client side, this is typically where you might reach to implement your own commerce API if you want to perform sophisticated logic around item taxes and handling discount codes.
 
-    Your site is now running at http://localhost:8000!
+3. The checkout is handled by a custom GraphQL server which creates an order with Printful, handles 3D Secure 2 payments with Stripe and sends the order details onto GraphCMS.
 
-    Edit `src/pages/index.js` to see your site update in real-time!
+4. Orders are then automatically fulfilled with Printful once a payment is received, and in return updates GraphCMS via a webhook to set the order to fulfilled.
 
-4.  **Learn more**
+⚠️ You must have a payment method registered with Printful for orders to be fulfilled automatically. You will be charged for Printful orders once they are created via the API, it's your responsibility to capture payments/manage payouts any funds from the customer via Stripe.
 
-    - [Documentation](https://www.gatsbyjs.com/docs/?utm_source=starter&utm_medium=readme&utm_campaign=minimal-starter)
+## How to use
 
-    - [Tutorials](https://www.gatsbyjs.com/tutorial/?utm_source=starter&utm_medium=readme&utm_campaign=minimal-starter)
+If you wish to extend and work with this example locally, follow the instructions below.
 
-    - [Guides](https://www.gatsbyjs.com/tutorial/?utm_source=starter&utm_medium=readme&utm_campaign=minimal-starter)
+If you'd rather check out a [demo](https://gatsby-graphcms-ecommerce-starter.netlify.com) or deploy to your own Netlify, you can do that too.
 
-    - [API Reference](https://www.gatsbyjs.com/docs/api-reference/?utm_source=starter&utm_medium=readme&utm_campaign=minimal-starter)
+First, you will need accounts at GraphCMS, Stripe, Gatsby, Postmark and Printful.
 
-    - [Plugin Library](https://www.gatsbyjs.com/plugins?utm_source=starter&utm_medium=readme&utm_campaign=minimal-starter)
+### 1. Download and install dependencies
 
-    - [Cheat Sheet](https://www.gatsbyjs.com/docs/cheat-sheet/?utm_source=starter&utm_medium=readme&utm_campaign=minimal-starter)
+```bash
+git clone git@github.com:graphcms/gatsby-graphcms-ecommerce-starter.git
+cd gatsby-graphcms-ecommerce-starter
+yarn # npm install
+cp .env.sample .env
+```
+
+### 2. Setup development environment variables
+
+You will need to create a project from template inside GraphCMS to carefully match what is expected from GraphCMS.
+
+You'll need an account with GraphCMS, Stripe and Printful for this demo to fully work. It's recommended you use separate API keys for development and production.
+
+Add the necessary variables to `.env`.
+
+### 3. (optional): Configure Stripe/Printful webhooks
+
+More details coming soon
+
+### 4. Run locally
+
+Once all dependencies and environment variables are satisfied, you can run Gatsby locally to build in development:
+
+```bash
+yarn dev
+```

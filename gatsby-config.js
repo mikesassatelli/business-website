@@ -1,42 +1,59 @@
+require(`dotenv`).config();
+
 module.exports = {
   siteMetadata: {
-    title: "business-website",
+    title: `GraphCMS SWAG Store`,
+    description: `Super cool SWAG from your favourite GraphQL CMS!`,
+    siteUrl: `https://store.graphcms.com`,
   },
   plugins: [
-    "gatsby-plugin-styled-components",
-    "gatsby-plugin-gatsby-cloud",
-    "gatsby-plugin-image",
+    `gatsby-plugin-postcss`,
     {
-      resolve: "gatsby-plugin-google-analytics",
+      resolve: 'gatsby-plugin-purgecss',
       options: {
-        trackingId: "G-XCKER69BTC", //FIXME: This is a tracking ID for example.com
+        tailwind: true,
+        purgeOnly: ['src/main.css'],
+        whitelistPatterns: ['/^ap-/', '^algolia-', '/^ais-'],
       },
     },
-    "gatsby-plugin-sitemap",
     {
-      resolve: "gatsby-plugin-manifest",
+      resolve: 'gatsby-plugin-react-svg',
       options: {
-        icon: "src/images/icon.png",
+        rule: {
+          include: /svg/,
+        },
       },
     },
-    "gatsby-plugin-mdx",
-    "gatsby-plugin-sharp",
-    "gatsby-transformer-sharp",
+    `gatsby-plugin-sharp`,
     {
-      resolve: "gatsby-source-filesystem",
+      resolve: `gatsby-source-graphcms`,
       options: {
-        name: "images",
-        path: "./src/images/",
+        endpoint: process.env.GRAPHCMS_ENDPOINT,
+        token: process.env.GRAPHCMS_QUERY_TOKEN,
+        locales: ['en', 'de'],
       },
-      __key: "images",
     },
     {
-      resolve: "gatsby-source-filesystem",
+      resolve: `gatsby-source-printful`,
       options: {
-        name: "pages",
-        path: "./src/pages/",
+        apiKey: process.env.PRINTFUL_API_KEY,
       },
-      __key: "pages",
+    },
+    `gatsby-transformer-sharp`,
+    `gatsby-plugin-react-helmet`,
+    {
+      resolve: `gatsby-plugin-algolia`,
+      options: {
+        indexName: process.env.GATSBY_ALGOLIA_INDEX_NAME,
+        appId: process.env.GATSBY_ALGOLIA_APP_ID,
+        apiKey: process.env.ALGOLIA_ADMIN_API_KEY,
+        queries: [
+          {
+            query: require('./src/utils/algolia-query'),
+            transformer: require('./src/utils/algolia-transformer'),
+          },
+        ],
+      },
     },
   ],
 };

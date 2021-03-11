@@ -1,55 +1,92 @@
-/**
- * Layout component that queries for data
- * with Gatsby's useStaticQuery component
- *
- * See: https://www.gatsbyjs.com/docs/use-static-query/
- */
+import React, { Fragment } from 'react'
+import Helmet from 'react-helmet'
+import { StaticQuery, graphql } from 'gatsby'
+import Meta from './Meta'
+import Nav from './Nav'
+import Footer from './Footer'
+import ContextProvider from '../provider/ContextProvider'
 
-import * as React from "react"
-import PropTypes from "prop-types"
-import { useStaticQuery, graphql } from "gatsby"
+import 'modern-normalize/modern-normalize.css'
+import './globalStyles.css'
 
-import Header from "./header"
-import "./layout.css"
-
-const Layout = ({ children }) => {
-  const data = useStaticQuery(graphql`
-    query SiteTitleQuery {
-      site {
-        siteMetadata {
-          title
-        }
-      }
-    }
-  `)
-
+export default ({ children, meta, title }) => {
   return (
-    <>
-      <Header siteTitle={data.site.siteMetadata?.title || `Title`} />
-      <div
-        style={{
-          margin: `0 auto`,
-          maxWidth: 960,
-          padding: `0 1.0875rem 1.45rem`,
+    <ContextProvider>
+      <StaticQuery
+        query={graphql`
+          query IndexLayoutQuery {
+            settingsYaml {
+              siteTitle
+              siteDescription
+              googleTrackingId
+              socialMediaCard {
+                image
+              }
+            }
+            allPosts: allMarkdownRemark(
+              filter: { fields: { contentType: { eq: "postCategories" } } }
+              sort: { order: DESC, fields: [frontmatter___date] }
+            ) {
+              edges {
+                node {
+                  fields {
+                    slug
+                  }
+                  frontmatter {
+                    title
+                  }
+                }
+              }
+            }
+          }
+        `}
+        render={data => {
+          const { siteTitle, socialMediaCard, googleTrackingId } =
+              data.settingsYaml || {},
+            subNav = {
+              posts: data.allPosts.hasOwnProperty('edges')
+                ? data.allPosts.edges.map(post => {
+                    return { ...post.node.fields, ...post.node.frontmatter }
+                  })
+                : false,
+            }
+
+          return (
+            <Fragment>
+              <Helmet
+                defaultTitle={`${title} | ${siteTitle}`}
+                titleTemplate={`%s | ${siteTitle}`}
+              >
+                {title}
+                <link
+                  href="https://ucarecdn.com"
+                  rel="preconnect"
+                  crossorigin
+                />
+                <link rel="dns-prefetch" href="https://ucarecdn.com" />
+                {/* Add font link tags here */}
+              </Helmet>
+
+              <Meta
+                googleTrackingId={googleTrackingId}
+                absoluteImageUrl={
+                  socialMediaCard &&
+                  socialMediaCard.image &&
+                  socialMediaCard.image
+                }
+                {...meta}
+                {...data.settingsYaml}
+              />
+
+              <Nav subNav={subNav} />
+
+              <Fragment>{children}</Fragment>
+
+              <Footer />
+            </Fragment>
+          )
         }}
-      >
-        <main>{children}</main>
-        <footer
-          style={{
-            marginTop: `2rem`,
-          }}
-        >
-          © {new Date().getFullYear()}, Built with
-          {` `}
-          <a href="https://www.gatsbyjs.com">Gatsby</a>
-        </footer>
-      </div>
-    </>
+      />
+    </ContextProvider>
   )
 }
-
-Layout.propTypes = {
-  children: PropTypes.node.isRequired,
-}
-
-export default Layout
